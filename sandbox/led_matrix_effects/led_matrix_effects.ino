@@ -5,7 +5,7 @@ LedControl lc = LedControl(12, 11, 10, 1);
 enum DirH { rl, lr };
 enum DirV { ud, du };
 
-const byte heart_full[8] = {
+const byte heart_solid[8] = {
   B00000000,
   B01100110,
   B11111111,
@@ -67,7 +67,7 @@ void setup() {
   */
   lc.shutdown(0, false);
   /* Set the brightness to a medium values */
-  lc.setIntensity(0, 5);
+  lc.setIntensity(0, 8);
   /* and clear the display */
   lc.clearDisplay(0);
 }
@@ -76,6 +76,13 @@ void loop() {
   int d = 50;
   bool s = 1;
   
+  lc.clearDisplay(0);
+  displayCol(B01100110, d);
+  
+  lc.clearDisplay(0);
+  displayRow(B10011001, d);
+
+  lc.clearDisplay(0);
   SweepLineV(3, 3, 3, s, d);
   SweepLineH(2, 3, 4, s, d);
   SweepLineV(5, 2, 4, s, d);
@@ -97,7 +104,12 @@ void loop() {
     DrawSolidSquare(i, i, 7 - i, 7-i, s, 4 * d);
   }
   
-  DisplayPic(heart_full, 10 * d);
+  for (int k = 2; k <= 10; k++) {
+    lc.clearDisplay(0);
+    delay(pow(2, k));
+    DisplayPic(heart_solid, pow(2, k));
+  }
+  
   
   // Scroll from top edge to bottom edge
   ScrollV(smile, d, DirV::ud);
@@ -247,4 +259,20 @@ void DrawSolidSquare(int top_l_x, int top_l_y, int bot_r_x, int bot_r_y, bool in
     }
   }
   DisplayPic(bin_arr, d);
+}
+
+void displayCol(byte data[8], int d) {
+  lc.clearDisplay(0);
+  for (int col = 0; col < 8; col++) {
+    lc.setColumn(0, col, data);
+    delay(d);
+  }
+}
+
+void displayRow(byte data[8], int d) {
+  lc.clearDisplay(0);
+  for (int row = 0; row < 8; row++) {
+    lc.setRow(0, row, data);
+    delay(d);
+  }
 }
