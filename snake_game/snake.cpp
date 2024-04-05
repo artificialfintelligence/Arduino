@@ -8,12 +8,18 @@ void Snake::Move() {
   switch (dir_) {
     case Direction::up:
       y_ = --y_ % 8;
+      if (y_ < 0) {
+        y_ += 8;
+      }
       break;
     case Direction::down:
       y_ = ++y_ % 8;
       break;
     case Direction::left:
       x_ = --x_ % 8;
+      if (x_ < 0) {
+        x_ += 8;
+      }
       break;
     case Direction::right:
       x_ = ++x_ % 8;
@@ -30,4 +36,3 @@ int Snake::getX() const {
 int Snake::getY() const {
   return y_;
 }
-

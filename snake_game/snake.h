@@ -12,12 +12,12 @@ public:
   Direction dir_;
 
   Snake(int x, int y, Direction dir);
-  
+
   void Move();
 
   int getX() const;
   int getY() const;
-  
+
 private:
   int x_;
   int y_;
