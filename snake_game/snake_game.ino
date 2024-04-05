@@ -1,5 +1,6 @@
 #include "LedControl.h"
 #include "snake.h"
+#include "point.h"
 
 // /* Joystick Defs */
 // const int jsX = A0; // Joystick X pin
@@ -17,7 +18,8 @@ unsigned long previousMillis = 0;
 unsigned long interval = 500;
 char in_byte;
 Snake::Direction curr_dir = Snake::Direction::right;
-Snake snake(0, 0, curr_dir);
+Point p = {0, 0};
+Snake snake(p, curr_dir);
 
 void setup()
 {
@@ -30,7 +32,7 @@ void setup()
   lc.shutdown(0, false);
   lc.setIntensity(0, 8);
   lc.clearDisplay(0);
-  lc.setLed(0, 0, 0, true);
+  lc.setLed(0, snake.getX(), snake.getY(), true);
 
   Serial.begin(9600);
 }

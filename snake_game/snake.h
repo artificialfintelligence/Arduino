@@ -1,6 +1,8 @@
 #ifndef SNAKE_H
 #define SNAKE_H
 
+#include "point.h"
+
 class Snake {
 public:
   enum class Direction {
@@ -11,7 +13,7 @@ public:
   };
   Direction dir_;
 
-  Snake(int x, int y, Direction dir);
+  Snake(Point p, Direction dir);
 
   void Move();
 
