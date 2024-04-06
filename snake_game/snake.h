@@ -10,7 +10,8 @@ public:
     up,
     down,
     left,
-    right
+    right,
+    none
   };
 
   Snake();

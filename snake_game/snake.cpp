@@ -5,7 +5,7 @@
 using Direction = Snake::Direction;
 
 // Default constructor
-Snake::Snake() : dir_(Direction::right), grow_flag_(false) {
+Snake::Snake() : dir_(Direction::none), grow_flag_(false) {
   chain_.HeadAppend(XformCoords({0, 0}));
 }
 
