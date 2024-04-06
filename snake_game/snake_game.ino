@@ -68,7 +68,7 @@ void loop()
     Node<Point>* p = snake.GetChain().GetHead();
     while (p != nullptr) {
       lc.setLed(0, p->data.x, p->data.y, 1);
-      p = p->next;
+      p = p->prev;
     }
   }
 }

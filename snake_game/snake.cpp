@@ -5,13 +5,9 @@
 using Direction = Snake::Direction;
 
 // Default constructor
-// Snake::Snake() : p_(XformCoords({0, 0})), dir_(Direction::right) {}
-Snake::Snake() : dir_(Direction::right) {
+Snake::Snake() : dir_(Direction::right), grow_flag_(false) {
   chain_.HeadAppend(XformCoords({0, 0}));
 }
-
-// Snake::Snake(Point p, Direction dir) : p_(XformCoords(p)), dir_(dir) {}
-
 
 void Snake::Move() {
   // Point curr_p = p_;
@@ -44,12 +40,18 @@ void Snake::Move() {
         break;
     }
     chain_.HeadAppend({x, y});
-    chain_.TailDelete();
+    if (!grow_flag_) {
+      chain_.TailDelete();
+    }
+    else {
+      // Reset grow_flag_
+      grow_flag_ = false;
+    }
   }
 }
 
 void Snake::Grow() {
-
+  grow_flag_ = true;
 }
 
 Direction Snake::GetDir() const {
@@ -60,13 +62,6 @@ void Snake::SetDir(Direction dir) {
   dir_ = dir;
 }
 
-// Point Snake::GetP() const {
-//   return p_;
-// }
-
-// void Snake::SetP(Point p) {
-//   p_ = p;
-// }
 InvertedDoubleLinkedList<Point, 64> Snake::GetChain() const {
   return chain_;
 }

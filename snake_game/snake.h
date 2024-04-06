@@ -14,7 +14,6 @@ public:
   };
 
   Snake();
-  // Snake(Point p, Direction dir);
 
   void Move();
   void Grow();
@@ -22,15 +21,13 @@ public:
   Direction GetDir() const;
   void SetDir(Direction dir);
 
-  // Point GetP() const;
-  // void SetP(Point p);
   InvertedDoubleLinkedList<Point, 64> GetChain() const;
 
 private:
   Point XformCoords(Point p) const;
 
   Direction dir_;
-  // Point p_;
+  bool grow_flag_;
   InvertedDoubleLinkedList<Point, 64> chain_;
 };
 
