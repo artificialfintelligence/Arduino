@@ -39,23 +39,36 @@ void setup()
 
 void loop()
 {
-  Snake::Direction new_dir = snake.GetDir();
+  Snake::Direction new_dir;
+  Snake::Direction curr_dir = snake.GetDir();
   if (Serial.available() > 0) {
     in_byte = Serial.read();
-    if (in_byte == 'u') {
-      new_dir = Snake::Direction::up;
-    }
-    else if (in_byte == 'd') {
-      new_dir = Snake::Direction::down;
-    }
-    else if (in_byte == 'l') {
-      new_dir = Snake::Direction::left;
-    }
-    else if (in_byte == 'r') {
-      new_dir = Snake::Direction::right;
-    }
-    else if (in_byte == 'g') {
-      snake.Grow();
+    switch (in_byte) {
+      case 'u':
+        if (curr_dir != Snake::Direction::down) {
+          new_dir = Snake::Direction::up;
+        }
+        break;
+      case 'd':
+        if (curr_dir != Snake::Direction::up) {
+          new_dir = Snake::Direction::down;
+        }
+        break;
+      case 'l':
+        if (curr_dir != Snake::Direction::right) {
+          new_dir = Snake::Direction::left;
+        }
+        break;
+      case 'r':
+        if (curr_dir != Snake::Direction::left) {
+          new_dir = Snake::Direction::right;
+        }
+        break;
+      case 'g':
+        snake.Grow();
+        break;
+      default:
+        break;
     }
   }
   snake.SetDir(new_dir);
