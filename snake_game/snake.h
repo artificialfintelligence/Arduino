@@ -11,18 +11,23 @@ public:
     left,
     right
   };
-  Direction dir_;
 
+  Snake();
   Snake(Point p, Direction dir);
 
   void Move();
+  void Grow();
 
-  int getX() const;
-  int getY() const;
+  Direction GetDir() const;
+  void SetDir(Direction dir);
+  Point GetP() const;
+  void SetP(Point p);
 
 private:
-  int x_;
-  int y_;
+  Point XformCoords(Point p) const;
+
+  Direction dir_;
+  Point p_;
 };
 
 #endif // SNAKE_H
