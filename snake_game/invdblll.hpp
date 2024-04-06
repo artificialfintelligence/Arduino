@@ -1,6 +1,8 @@
 #ifndef INVDBLLL_H
 #define INVDBLLL_H
 
+#include <stdio.h>
+
 template <typename T>
 struct Node {
   T data;
@@ -28,7 +30,7 @@ public:
     new_node->data = data;
     new_node->next = nullptr;
     new_node->prev = head_;
-    if (head != nullptr) {
+    if (head_ != nullptr) {
       head_->next = new_node;
     }
     else {
