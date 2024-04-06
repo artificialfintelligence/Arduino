@@ -59,6 +59,10 @@ public:
     size_--;
     return true;
   }
+
+  Node<T>* GetHead() const {
+    return head_;
+  }
 };
 
 #endif // INVDBLLL_H
