@@ -2,6 +2,7 @@
 #define SNAKE_H
 
 #include "point.h"
+#include "invdblll.hpp"
 
 class Snake {
 public:
@@ -13,21 +14,24 @@ public:
   };
 
   Snake();
-  Snake(Point p, Direction dir);
+  // Snake(Point p, Direction dir);
 
   void Move();
   void Grow();
 
   Direction GetDir() const;
   void SetDir(Direction dir);
-  Point GetP() const;
-  void SetP(Point p);
+
+  // Point GetP() const;
+  // void SetP(Point p);
+  InvertedDoubleLinkedList<Point, 64> GetChain() const;
 
 private:
   Point XformCoords(Point p) const;
 
   Direction dir_;
-  Point p_;
+  // Point p_;
+  InvertedDoubleLinkedList<Point, 64> chain_;
 };
 
 #endif // SNAKE_H

@@ -30,15 +30,16 @@ void setup()
   lc.setIntensity(0, 8);
   lc.clearDisplay(0);
 
-  snake = Snake({0, 0}, Snake::Direction::right);
-  lc.setLed(0, snake.GetP().x, snake.GetP().y, true);
+  snake = Snake();
+  Point init_p = snake.GetChain().GetHead()->data;
+  lc.setLed(0, init_p.x, init_p.y, true);
 
   Serial.begin(9600);
 }
 
 void loop()
 {
-  Snake::Direction new_dir;
+  Snake::Direction new_dir = snake.GetDir();
   if (Serial.available() > 0) {
     in_byte = Serial.read();
     if (in_byte == 'u') {
@@ -62,10 +63,12 @@ void loop()
   unsigned long currentMillis = millis();
   if (currentMillis - previousMillis >= interval) {
     previousMillis = currentMillis;
-    Point p = snake.GetP();
-    lc.setLed(0, p.x, p.y, 0);
+    lc.clearDisplay(0);
     snake.Move();
-    p = snake.GetP();
-    lc.setLed(0, p.x, p.y, 1);
+    Node<Point>* p = snake.GetChain().GetHead();
+    while (p != nullptr) {
+      lc.setLed(0, p->data.x, p->data.y, 1);
+      p = p->next;
+    }
   }
 }
