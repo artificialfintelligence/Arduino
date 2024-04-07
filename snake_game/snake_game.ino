@@ -18,6 +18,7 @@ unsigned long previousMillis = 0;
 unsigned long interval = 500;
 char in_byte;
 Snake snake;
+bool do_grow = false;
 
 void setup()
 {
@@ -39,10 +40,10 @@ void setup()
 
 void loop()
 {
-  Snake::Direction new_dir;
-  Snake::Direction curr_dir = snake.GetDir();
   if (Serial.available() > 0) {
     in_byte = Serial.read();
+    Snake::Direction curr_dir = snake.GetDir();
+    Snake::Direction new_dir = curr_dir;
     switch (in_byte) {
       case 'u':
         if (curr_dir != Snake::Direction::down) {
@@ -65,23 +66,24 @@ void loop()
         }
         break;
       case 'g':
-        snake.Grow();
+        do_grow = true;
         break;
       default:
         break;
     }
+    snake.SetDir(new_dir);
   }
-  snake.SetDir(new_dir);
 
   unsigned long currentMillis = millis();
   if (currentMillis - previousMillis >= interval) {
     previousMillis = currentMillis;
-    lc.clearDisplay(0);
-    snake.Move();
-    Node<Point>* p = snake.GetChain().GetHead();
-    while (p != nullptr) {
-      lc.setLed(0, p->data.x, p->data.y, 1);
-      p = p->prev;
+    Point old_tail_pos = snake.GetChain().GetTail()->data;
+    snake.Update(do_grow);
+    Point new_head_pos = snake.GetChain().GetHead()->data;
+    lc.setLed(0, new_head_pos.x, new_head_pos.y, 1);
+    if (!do_grow && snake.GetDir() != Snake::Direction::none) {
+      lc.setLed(0, old_tail_pos.x, old_tail_pos.y, 0);
     }
+    do_grow = false;
   }
 }

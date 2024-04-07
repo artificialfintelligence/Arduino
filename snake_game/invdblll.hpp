@@ -63,6 +63,10 @@ public:
   Node<T>* GetHead() const {
     return head_;
   }
+
+  Node<T>* GetTail() const {
+    return tail_;
+  }
 };
 
 #endif // INVDBLLL_H
