@@ -15,10 +15,11 @@ LedControl lc = LedControl(ledDat, ledClk, ledCS, 1);
 
 /* Global Vars */
 unsigned long previousMillis = 0;
-unsigned long interval = 500;
+unsigned long interval = 3000;
 char in_byte;
 Snake snake;
 bool do_grow = false;
+bool game_over = false;
 
 void setup()
 {
@@ -75,15 +76,28 @@ void loop()
   }
 
   unsigned long currentMillis = millis();
-  if (currentMillis - previousMillis >= interval) {
+  if (!game_over && currentMillis - previousMillis >= interval) {
     previousMillis = currentMillis;
+
+    Point old_head_pos = snake.GetChain().GetHead()->data;
     Point old_tail_pos = snake.GetChain().GetTail()->data;
     snake.Update(do_grow);
     Point new_head_pos = snake.GetChain().GetHead()->data;
-    lc.setLed(0, new_head_pos.x, new_head_pos.y, 1);
-    if (!do_grow && snake.GetDir() != Snake::Direction::none) {
-      lc.setLed(0, old_tail_pos.x, old_tail_pos.y, 0);
+    if (snake.GetDir() != Snake::Direction::none && new_head_pos == old_head_pos) {
+      game_over = true;
+    }
+    else {  // Update LEDs
+      lc.setLed(0, new_head_pos.x, new_head_pos.y, 1);
+      if (!do_grow && snake.GetDir() != Snake::Direction::none && old_tail_pos != new_head_pos) {
+        lc.setLed(0, old_tail_pos.x, old_tail_pos.y, 0);
+      }
     }
     do_grow = false;
+  }
+  if (game_over) {
+    Serial.write("Game Over!");
+    do {
+      in_byte = Serial.read();
+    } while (Serial.available() == 0);
   }
 }
