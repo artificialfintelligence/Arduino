@@ -1,6 +1,7 @@
 #include "LedControl.h"
 #include "snake.h"
 #include "point.h"
+#include "food.h"
 
 // /* Joystick Defs */
 // const int jsX = A0; // Joystick X pin
@@ -23,8 +24,14 @@ int head_led_status = 1;
 
 char in_byte;
 Snake snake;
+Food food;
 bool do_grow = false;
 bool game_over = false;
+
+void seedRandom() {
+    // Read from an unconnected analog pin to get a random seed
+    randomSeed(analogRead(0));
+}
 
 void setup()
 {
@@ -37,9 +44,23 @@ void setup()
   lc.setIntensity(0, 8);
   lc.clearDisplay(0);
 
+  /*
+    A crucially important idea is that we NEVER directly give "raw" coordinates to any of the
+    classes. On the other hand, they automatically handle conversions, so any coordinates we *get*
+    from them are already converted to the correct coordinates for LedControl to work with.
+  */
   snake = Snake();
-  Point init_p = snake.GetChain().GetHead()->data;
-  lc.setLed(0, init_p.x, init_p.y, true);
+  food = Food();
+  Point init_head = snake.GetChain().GetHead()->data;
+  Point init_food = food.GetCoords();
+  lc.setLed(0, init_head.x, init_head.y, true);
+
+  // Make sure food is not on snake's head
+  while (init_food.x == init_head.x && init_food.y == init_head.y) {
+    food = Food();
+    init_food = food.GetCoords();
+  }
+  lc.setLed(0, init_food.x, init_food.y, true);
 
   Serial.begin(9600);
 }
