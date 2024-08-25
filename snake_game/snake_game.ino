@@ -14,8 +14,13 @@ const int ledCS = 10;
 LedControl lc = LedControl(ledDat, ledClk, ledCS, 1);
 
 /* Global Vars */
-unsigned long previousMillis = 0;
-unsigned long interval = 3000;
+unsigned long prevMillis = 0;
+unsigned long interval = 1000;
+
+unsigned long prevMillis_blink = 0;
+unsigned long interval_blink = 150;
+int head_led_status = 1;
+
 char in_byte;
 Snake snake;
 bool do_grow = false;
@@ -75,21 +80,33 @@ void loop()
     snake.SetDir(new_dir);
   }
 
-  unsigned long currentMillis = millis();
-  if (!game_over && currentMillis - previousMillis >= interval) {
-    previousMillis = currentMillis;
+  Point head_pos = snake.GetChain().GetHead()->data;
+  Point tail_pos = snake.GetChain().GetTail()->data;
+  
+  unsigned long currMillis = millis();
 
-    Point old_head_pos = snake.GetChain().GetHead()->data;
-    Point old_tail_pos = snake.GetChain().GetTail()->data;
+  if (currMillis - prevMillis_blink >= interval_blink) {
+    prevMillis_blink = currMillis;
+    head_led_status = 1 - head_led_status;
+    lc.setLed(0, head_pos.x, head_pos.y, head_led_status);
+  }
+
+  if (!game_over && currMillis - prevMillis >= interval) {
+    prevMillis = currMillis;
+    if (head_led_status == 0) {
+      head_led_status = 1;
+    }
+    lc.setLed(0, head_pos.x, head_pos.y, head_led_status);
+
     snake.Update(do_grow);
     Point new_head_pos = snake.GetChain().GetHead()->data;
-    if (snake.GetDir() != Snake::Direction::none && new_head_pos == old_head_pos) {
+    if (snake.GetDir() != Snake::Direction::none && new_head_pos == head_pos) {
       game_over = true;
     }
     else {  // Update LEDs
       lc.setLed(0, new_head_pos.x, new_head_pos.y, 1);
-      if (!do_grow && snake.GetDir() != Snake::Direction::none && old_tail_pos != new_head_pos) {
-        lc.setLed(0, old_tail_pos.x, old_tail_pos.y, 0);
+      if (!do_grow && snake.GetDir() != Snake::Direction::none && new_head_pos != tail_pos) {
+        lc.setLed(0, tail_pos.x, tail_pos.y, 0);
       }
     }
     do_grow = false;
