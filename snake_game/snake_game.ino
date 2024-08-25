@@ -120,28 +120,22 @@ void loop()
     }
     lc.setLed(0, head_pos.x, head_pos.y, head_led_status);
 
-    snake.Update(do_grow);
+    bool did_gow = snake.Update(food_loc);
     Point new_head_pos = snake.GetChain().GetHead()->data;
     if (snake.GetDir() != Snake::Direction::none && new_head_pos == head_pos) {
       game_over = true;
     }
     else {  // Update LEDs
       lc.setLed(0, new_head_pos.x, new_head_pos.y, 1);
-      if (!do_grow && snake.GetDir() != Snake::Direction::none && new_head_pos != tail_pos) {
+      if (!did_gow && snake.GetDir() != Snake::Direction::none && new_head_pos != tail_pos) {
         lc.setLed(0, tail_pos.x, tail_pos.y, 0);
       }
+      if (did_gow) {
+        food.Spawn(snake.GetChain());
+        food_loc = food.GetCoords();
+        lc.setLed(0, food_loc.x, food_loc.y, 1);
+      }
     }
-    do_grow = false;
-
-    lc.setLed(0, food_loc.x, food_loc.y, 0);  // for testing only... this needs to change
-    food.Spawn(snake.GetChain());
-    food_loc = food.GetCoords();
-    lc.setLed(0, food_loc.x, food_loc.y, 1);
-    Serial.print("(");
-    Serial.print(food_loc.x);
-    Serial.print(", ");
-    Serial.print(food_loc.y);
-    Serial.println(")");
   }
 
   if (game_over) {

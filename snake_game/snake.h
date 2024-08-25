@@ -16,7 +16,7 @@ public:
 
   Snake();
 
-  void Update(bool do_grow);
+  bool Update(const Point& food);
 
   Direction GetDir() const;
   void SetDir(Direction dir);

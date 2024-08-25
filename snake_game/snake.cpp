@@ -9,8 +9,9 @@ Snake::Snake() : dir_(Direction::none), length_(1) {
   chain_.HeadAppend(XformCoords({0, 0}));
 }
 
-void Snake::Update(bool do_grow) {
+bool Snake::Update(const Point& food) {
   bool collision = false;
+  bool do_grow = false;
   Node<Point>* head = chain_.GetHead();
   Node<Point>* tail = chain_.GetTail();
 
@@ -41,6 +42,10 @@ void Snake::Update(bool do_grow) {
       break;
   }
   Point new_head_pos = Point{x, y};
+  if (new_head_pos == food) {
+    do_grow = true;
+  }
+
   Node<Point>* node = head->prev;
   while (node != nullptr) {
     if (node->data == new_head_pos) {
@@ -61,6 +66,7 @@ void Snake::Update(bool do_grow) {
       chain_.TailDelete();
     }
   }
+  return do_grow;
 }
 
 Direction Snake::GetDir() const {
