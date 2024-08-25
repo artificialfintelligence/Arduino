@@ -16,11 +16,11 @@ LedControl lc = LedControl(ledDat, ledClk, ledCS, 1);
 
 /* Global Vars */
 unsigned long prevMillis = 0;
-unsigned long interval = 1000;
+unsigned long interval = 500;
 
 unsigned long prevMillis_blink = 0;
-unsigned long interval_blink = 150;
-int head_led_status = 1;
+unsigned long interval_blink = 100;
+bool head_led_status = true;
 
 char in_byte;
 Snake snake;
@@ -41,7 +41,7 @@ void setup()
     The MAX72XX is in power-saving mode on startup, we have to do a wakeup call.
   */
   lc.shutdown(0, false);
-  lc.setIntensity(0, 8);
+  lc.setIntensity(0, 4);
   lc.clearDisplay(0);
 
   /*
@@ -67,104 +67,72 @@ void setup()
 
 void loop()
 {
-  Snake::Direction curr_dir = snake.GetDir();
-  Snake::Direction new_dir = curr_dir;
-  if (analogRead(jsX) > 767) {
-    if (curr_dir != Snake::Direction::left) {
-      new_dir = Snake::Direction::right;
-    }
-  }
-  if (analogRead(jsX) < 255) {
-    if (curr_dir != Snake::Direction::right) {
-      new_dir = Snake::Direction::left;
-    }
-  }
-  if (analogRead(jsY) > 767) {
-    if (curr_dir != Snake::Direction::up) {
-      new_dir = Snake::Direction::down;
-    }
-  }
-  if (analogRead(jsY) < 255) {
-    if (curr_dir != Snake::Direction::down) {
-      new_dir = Snake::Direction::up;
-    }
-  }
-  snake.SetDir(new_dir);
-  // if (Serial.available() > 0) {
-  //   in_byte = Serial.read();
-  //   Snake::Direction curr_dir = snake.GetDir();
-  //   Snake::Direction new_dir = curr_dir;
-  //   switch (in_byte) {
-  //     case 'u':
-  //       if (curr_dir != Snake::Direction::down) {
-  //         new_dir = Snake::Direction::up;
-  //       }
-  //       break;
-  //     case 'd':
-  //       if (curr_dir != Snake::Direction::up) {
-  //         new_dir = Snake::Direction::down;
-  //       }
-  //       break;
-  //     case 'l':
-  //       if (curr_dir != Snake::Direction::right) {
-  //         new_dir = Snake::Direction::left;
-  //       }
-  //       break;
-  //     case 'r':
-  //       if (curr_dir != Snake::Direction::left) {
-  //         new_dir = Snake::Direction::right;
-  //       }
-  //       break;
-  //     case 'g':
-  //       do_grow = true;
-  //       break;
-  //     default:
-  //       break;
-  //   }
-  //   snake.SetDir(new_dir);
-  // }
-
-  Point head_pos = snake.GetChain().GetHead()->data;
-  Point tail_pos = snake.GetChain().GetTail()->data;
-  Point food_loc = food.GetCoords();
-  
   unsigned long currMillis = millis();
-
-  if (currMillis - prevMillis_blink >= interval_blink) {
-    prevMillis_blink = currMillis;
-    head_led_status = 1 - head_led_status;
-    lc.setLed(0, head_pos.x, head_pos.y, head_led_status);
-  }
-
-  if (!game_over && currMillis - prevMillis >= interval) {
-    prevMillis = currMillis;
-    if (head_led_status == 0) {
-      head_led_status = 1;
-    }
-    lc.setLed(0, head_pos.x, head_pos.y, head_led_status);
-
-    bool did_gow = snake.Update(food_loc);
-    Point new_head_pos = snake.GetChain().GetHead()->data;
-    if (snake.GetDir() != Snake::Direction::none && new_head_pos == head_pos) {
-      game_over = true;
-    }
-    else {  // Update LEDs
-      lc.setLed(0, new_head_pos.x, new_head_pos.y, 1);
-      if (!did_gow && snake.GetDir() != Snake::Direction::none && new_head_pos != tail_pos) {
-        lc.setLed(0, tail_pos.x, tail_pos.y, 0);
-      }
-      if (did_gow) {
-        food.Spawn(snake.GetChain());
-        food_loc = food.GetCoords();
-        lc.setLed(0, food_loc.x, food_loc.y, 1);
-      }
-    }
-  }
 
   if (game_over) {
     Serial.write("Game Over!");
     do {
-      in_byte = Serial.read();
-    } while (Serial.available() == 0);
+      delay(50);
+    } while (digitalRead(jsP));
   }
+  else {
+    Point head_pos = snake.GetChain().GetHead()->data;
+
+    Snake::Direction curr_dir = snake.GetDir();
+    Snake::Direction new_dir = curr_dir;
+    if (analogRead(jsX) > 767) {
+      if (curr_dir != Snake::Direction::left) {
+        new_dir = Snake::Direction::right;
+      }
+    }
+    if (analogRead(jsX) < 255) {
+      if (curr_dir != Snake::Direction::right) {
+        new_dir = Snake::Direction::left;
+      }
+    }
+    if (analogRead(jsY) > 767) {
+      if (curr_dir != Snake::Direction::up) {
+        new_dir = Snake::Direction::down;
+      }
+    }
+    if (analogRead(jsY) < 255) {
+      if (curr_dir != Snake::Direction::down) {
+        new_dir = Snake::Direction::up;
+      }
+    }
+    snake.SetDir(new_dir);
+
+    if (currMillis - prevMillis_blink >= interval_blink) {
+      prevMillis_blink = currMillis;
+      head_led_status = !head_led_status;
+      lc.setLed(0, head_pos.x, head_pos.y, head_led_status);
+    }
+    
+    if (currMillis - prevMillis >= interval) {
+      prevMillis = currMillis;
+      if (head_led_status == 0) {
+        head_led_status = 1;
+      }
+      lc.setLed(0, head_pos.x, head_pos.y, head_led_status);
+      Point tail_pos = snake.GetChain().GetTail()->data;
+      Point food_loc = food.GetCoords();
+
+      bool did_gow = snake.Update(food_loc);
+      Point new_head_pos = snake.GetChain().GetHead()->data;
+      if (snake.GetDir() != Snake::Direction::none && new_head_pos == head_pos) {
+        game_over = true;
+      }
+      else {  // Update LEDs
+        lc.setLed(0, new_head_pos.x, new_head_pos.y, 1);
+        if (!did_gow && snake.GetDir() != Snake::Direction::none && new_head_pos != tail_pos) {
+          lc.setLed(0, tail_pos.x, tail_pos.y, 0);
+        }
+        if (did_gow) {
+          food.Spawn(snake.GetChain());
+          food_loc = food.GetCoords();
+          lc.setLed(0, food_loc.x, food_loc.y, 1);
+        }
+      }
+    }
+  } 
 }
