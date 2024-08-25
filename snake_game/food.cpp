@@ -8,12 +8,26 @@ extern void seedRandom();
 // Default constructor (random location)
 Food::Food() {
     seedRandom();
-    coords_ = XformCoords(Point{random(8), random(8)});
+    coords_ = XformCoords(Point{static_cast<int>(random(8)), static_cast<int>(random(8))});
 }
 
-// void Food::Spawn(InvertedDoubleLinkedList<Point, 64> excl_coords) {
-//   // TODO
-// }
+void Food::Spawn(const InvertedDoubleLinkedList<Point, 64>& excl_coords_list) {
+  Point candidate;
+  bool is_valid_loc;
+  do {
+    is_valid_loc = true;
+    candidate = Point{static_cast<int>(random(8)), static_cast<int>(random(8))};
+    Node<Point>* node = excl_coords_list.GetHead();
+    while (node != nullptr) {
+      if (node->data == candidate) {
+        is_valid_loc = false;
+        break;
+      }
+      node = node->prev;
+    }
+  } while (!is_valid_loc);
+  coords_ = candidate;
+}
 
 Point Food::GetCoords() const {
   return coords_;

@@ -9,7 +9,7 @@ class Food {
 public:
   Food();
 
-  // void Spawn(InvertedDoubleLinkedList<Point, 64> excl_coords);
+  void Spawn(const InvertedDoubleLinkedList<Point, 64>& excl_coords_list);
 
   Point GetCoords() const;
   // void SetCoords(Point p);

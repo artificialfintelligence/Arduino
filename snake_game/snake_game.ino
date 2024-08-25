@@ -103,6 +103,7 @@ void loop()
 
   Point head_pos = snake.GetChain().GetHead()->data;
   Point tail_pos = snake.GetChain().GetTail()->data;
+  Point food_loc = food.GetCoords();
   
   unsigned long currMillis = millis();
 
@@ -131,7 +132,18 @@ void loop()
       }
     }
     do_grow = false;
+
+    lc.setLed(0, food_loc.x, food_loc.y, 0);  // for testing only... this needs to change
+    food.Spawn(snake.GetChain());
+    food_loc = food.GetCoords();
+    lc.setLed(0, food_loc.x, food_loc.y, 1);
+    Serial.print("(");
+    Serial.print(food_loc.x);
+    Serial.print(", ");
+    Serial.print(food_loc.y);
+    Serial.println(")");
   }
+
   if (game_over) {
     Serial.write("Game Over!");
     do {
