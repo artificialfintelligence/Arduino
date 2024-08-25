@@ -4,9 +4,9 @@
 #include "food.h"
 
 // /* Joystick Defs */
-// const int jsX = A0; // Joystick X pin
-// const int jsY = A1; // Joystick Y pin
-// const int jsP = 8;  // Joystick button press pin
+const int jsX = A1; // Joystick X pin
+const int jsY = A2; // Joystick Y pin
+const int jsP = 8;  // Joystick button press pin
 
 /* LED Matrix Defs */
 const int ledDat = 12;
@@ -35,7 +35,7 @@ void seedRandom() {
 
 void setup()
 {
-  // pinMode(jsP, INPUT_PULLUP); // Set the joystick button press pin to INPUT_PULLUP
+  pinMode(jsP, INPUT_PULLUP); // Set the joystick button press pin to INPUT_PULLUP
 
   /*
     The MAX72XX is in power-saving mode on startup, we have to do a wakeup call.
@@ -67,39 +67,62 @@ void setup()
 
 void loop()
 {
-  if (Serial.available() > 0) {
-    in_byte = Serial.read();
-    Snake::Direction curr_dir = snake.GetDir();
-    Snake::Direction new_dir = curr_dir;
-    switch (in_byte) {
-      case 'u':
-        if (curr_dir != Snake::Direction::down) {
-          new_dir = Snake::Direction::up;
-        }
-        break;
-      case 'd':
-        if (curr_dir != Snake::Direction::up) {
-          new_dir = Snake::Direction::down;
-        }
-        break;
-      case 'l':
-        if (curr_dir != Snake::Direction::right) {
-          new_dir = Snake::Direction::left;
-        }
-        break;
-      case 'r':
-        if (curr_dir != Snake::Direction::left) {
-          new_dir = Snake::Direction::right;
-        }
-        break;
-      case 'g':
-        do_grow = true;
-        break;
-      default:
-        break;
+  Snake::Direction curr_dir = snake.GetDir();
+  Snake::Direction new_dir = curr_dir;
+  if (analogRead(jsX) > 767) {
+    if (curr_dir != Snake::Direction::left) {
+      new_dir = Snake::Direction::right;
     }
-    snake.SetDir(new_dir);
   }
+  if (analogRead(jsX) < 255) {
+    if (curr_dir != Snake::Direction::right) {
+      new_dir = Snake::Direction::left;
+    }
+  }
+  if (analogRead(jsY) > 767) {
+    if (curr_dir != Snake::Direction::up) {
+      new_dir = Snake::Direction::down;
+    }
+  }
+  if (analogRead(jsY) < 255) {
+    if (curr_dir != Snake::Direction::down) {
+      new_dir = Snake::Direction::up;
+    }
+  }
+  snake.SetDir(new_dir);
+  // if (Serial.available() > 0) {
+  //   in_byte = Serial.read();
+  //   Snake::Direction curr_dir = snake.GetDir();
+  //   Snake::Direction new_dir = curr_dir;
+  //   switch (in_byte) {
+  //     case 'u':
+  //       if (curr_dir != Snake::Direction::down) {
+  //         new_dir = Snake::Direction::up;
+  //       }
+  //       break;
+  //     case 'd':
+  //       if (curr_dir != Snake::Direction::up) {
+  //         new_dir = Snake::Direction::down;
+  //       }
+  //       break;
+  //     case 'l':
+  //       if (curr_dir != Snake::Direction::right) {
+  //         new_dir = Snake::Direction::left;
+  //       }
+  //       break;
+  //     case 'r':
+  //       if (curr_dir != Snake::Direction::left) {
+  //         new_dir = Snake::Direction::right;
+  //       }
+  //       break;
+  //     case 'g':
+  //       do_grow = true;
+  //       break;
+  //     default:
+  //       break;
+  //   }
+  //   snake.SetDir(new_dir);
+  // }
 
   Point head_pos = snake.GetChain().GetHead()->data;
   Point tail_pos = snake.GetChain().GetTail()->data;
