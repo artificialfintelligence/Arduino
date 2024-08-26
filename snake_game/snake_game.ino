@@ -22,6 +22,10 @@ unsigned long prevMillis_blink = 0;
 unsigned long interval_blink = 100;
 bool head_led_status = true;
 
+unsigned long prevMillis_blink_food = 0;
+unsigned long interval_blink_food = 250;
+bool food_led_status = true;
+
 char in_byte;
 Snake snake;
 Snake::Direction dir;
@@ -86,6 +90,7 @@ void loop()
   }
   else {
     Point head_pos = snake.GetChain().GetHead()->data;
+    Point food_loc = food.GetCoords();
 
     Snake::Direction curr_dir = snake.GetDir();
     // Snake::Direction new_dir = curr_dir;
@@ -115,6 +120,12 @@ void loop()
       head_led_status = !head_led_status;
       lc.setLed(0, head_pos.x, head_pos.y, head_led_status);
     }
+
+    if (currMillis - prevMillis_blink_food >= interval_blink_food) {
+      prevMillis_blink_food = currMillis;
+      food_led_status = !food_led_status;
+      lc.setLed(0, food_loc.x, food_loc.y, food_led_status);
+    }
     
     if (currMillis - prevMillis >= interval) {
       prevMillis = currMillis;
@@ -123,7 +134,7 @@ void loop()
       }
       lc.setLed(0, head_pos.x, head_pos.y, head_led_status);
       Point tail_pos = snake.GetChain().GetTail()->data;
-      Point food_loc = food.GetCoords();
+
       snake.SetDir(dir);
       bool did_gow = snake.Update(food_loc);
       Point new_head_pos = snake.GetChain().GetHead()->data;
