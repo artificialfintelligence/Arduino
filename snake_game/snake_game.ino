@@ -115,7 +115,7 @@ void loop()
       }
     }
 
-    if (currMillis - prevMillis_blink >= interval_blink) {
+    if (currMillis - prevMillis_blink >= interval_blink && curr_dir != Snake::Direction::none) {
       prevMillis_blink = currMillis;
       head_led_status = !head_led_status;
       lc.setLed(0, head_pos.x, head_pos.y, head_led_status);
