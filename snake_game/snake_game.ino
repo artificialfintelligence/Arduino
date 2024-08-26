@@ -24,6 +24,7 @@ bool head_led_status = true;
 
 char in_byte;
 Snake snake;
+Snake::Direction dir;
 Food food;
 bool do_grow;
 bool game_over;
@@ -42,6 +43,7 @@ void resetGame() {
     from them are already converted to the correct coordinates for LedControl to work with.
   */
   snake = Snake();
+  dir = snake.GetDir();
   food = Food();
   Point init_head = snake.GetChain().GetHead()->data;
   Point init_food = food.GetCoords();
@@ -86,28 +88,27 @@ void loop()
     Point head_pos = snake.GetChain().GetHead()->data;
 
     Snake::Direction curr_dir = snake.GetDir();
-    Snake::Direction new_dir = curr_dir;
+    // Snake::Direction new_dir = curr_dir;
     if (analogRead(jsX) > 767) {
       if (curr_dir != Snake::Direction::left) {
-        new_dir = Snake::Direction::right;
+        dir = Snake::Direction::right;
       }
     }
     if (analogRead(jsX) < 255) {
       if (curr_dir != Snake::Direction::right) {
-        new_dir = Snake::Direction::left;
+        dir = Snake::Direction::left;
       }
     }
     if (analogRead(jsY) > 767) {
       if (curr_dir != Snake::Direction::up) {
-        new_dir = Snake::Direction::down;
+        dir = Snake::Direction::down;
       }
     }
     if (analogRead(jsY) < 255) {
       if (curr_dir != Snake::Direction::down) {
-        new_dir = Snake::Direction::up;
+        dir = Snake::Direction::up;
       }
     }
-    snake.SetDir(new_dir);
 
     if (currMillis - prevMillis_blink >= interval_blink) {
       prevMillis_blink = currMillis;
@@ -123,7 +124,7 @@ void loop()
       lc.setLed(0, head_pos.x, head_pos.y, head_led_status);
       Point tail_pos = snake.GetChain().GetTail()->data;
       Point food_loc = food.GetCoords();
-
+      snake.SetDir(dir);
       bool did_gow = snake.Update(food_loc);
       Point new_head_pos = snake.GetChain().GetHead()->data;
       if (snake.GetDir() != Snake::Direction::none && new_head_pos == head_pos) {
