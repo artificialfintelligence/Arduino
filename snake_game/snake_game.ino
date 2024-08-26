@@ -25,23 +25,15 @@ bool head_led_status = true;
 char in_byte;
 Snake snake;
 Food food;
-bool do_grow = false;
-bool game_over = false;
+bool do_grow;
+bool game_over;
 
 void seedRandom() {
     // Read from an unconnected analog pin to get a random seed
     randomSeed(analogRead(0));
 }
 
-void setup()
-{
-  pinMode(jsP, INPUT_PULLUP); // Set the joystick button press pin to INPUT_PULLUP
-
-  /*
-    The MAX72XX is in power-saving mode on startup, we have to do a wakeup call.
-  */
-  lc.shutdown(0, false);
-  lc.setIntensity(0, 4);
+void resetGame() {
   lc.clearDisplay(0);
 
   /*
@@ -62,7 +54,22 @@ void setup()
   }
   lc.setLed(0, init_food.x, init_food.y, true);
 
+  game_over = false;
+}
+
+void setup()
+{
+  pinMode(jsP, INPUT_PULLUP); // Set the joystick button press pin to INPUT_PULLUP
+
+  /*
+    The MAX72XX is in power-saving mode on startup, we have to do a wakeup call.
+  */
+  lc.shutdown(0, false);
+  lc.setIntensity(0, 4);
+
   Serial.begin(9600);
+
+  resetGame();
 }
 
 void loop()
@@ -70,10 +77,10 @@ void loop()
   unsigned long currMillis = millis();
 
   if (game_over) {
-    Serial.write("Game Over!");
-    do {
-      delay(50);
-    } while (digitalRead(jsP));
+    while (digitalRead(jsP)) {
+      delay (100);
+    }
+    resetGame();
   }
   else {
     Point head_pos = snake.GetChain().GetHead()->data;
@@ -120,6 +127,8 @@ void loop()
       bool did_gow = snake.Update(food_loc);
       Point new_head_pos = snake.GetChain().GetHead()->data;
       if (snake.GetDir() != Snake::Direction::none && new_head_pos == head_pos) {
+        Serial.write("Game Over!");
+        Serial.write("\n");
         game_over = true;
       }
       else {  // Update LEDs
