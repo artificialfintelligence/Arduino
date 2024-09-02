@@ -123,6 +123,10 @@ void setup()
 
 void loop()
 {
+  if (!digitalRead(jsP)) {
+    delay(200);
+    resetGame();
+  }
   speedValue = analogRead(A3);
   interval = max_interval - (speedValue / 1024.0) * (max_interval - min_interval);
 
