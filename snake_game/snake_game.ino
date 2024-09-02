@@ -14,7 +14,13 @@ const int ledClk = 11;
 const int ledCS = 10;
 LedControl lc = LedControl(ledDat, ledClk, ledCS, 1);
 
+/* Potentiometer for Speed Adjustment */
+int speedValue; // = analogRead(A3);
+
 /* Global Vars */
+const unsigned long min_interval = 100;
+const unsigned long max_interval = 1000;
+
 unsigned long prevMillis = 0;
 unsigned long interval = 500;
 
@@ -35,7 +41,7 @@ bool game_over;
 
 void seedRandom() {
     // Read from an unconnected analog pin to get a random seed
-    randomSeed(analogRead(0));
+    randomSeed(analogRead(A0));
 }
 
 void resetGame() {
@@ -73,13 +79,16 @@ void setup()
   lc.shutdown(0, false);
   lc.setIntensity(0, 4);
 
-  Serial.begin(9600);
+  // Serial.begin(9600);
 
   resetGame();
 }
 
 void loop()
 {
+  speedValue = analogRead(A3);
+  interval = max_interval - (speedValue / 1024.0) * (max_interval - min_interval);
+
   unsigned long currMillis = millis();
 
   if (game_over) {
@@ -139,8 +148,6 @@ void loop()
       bool did_gow = snake.Update(food_loc);
       Point new_head_pos = snake.GetChain().GetHead()->data;
       if (snake.GetDir() != Snake::Direction::none && new_head_pos == head_pos) {
-        Serial.write("Game Over!");
-        Serial.write("\n");
         game_over = true;
       }
       else {  // Update LEDs
