@@ -39,6 +39,43 @@ Food food;
 bool do_grow;
 bool game_over;
 
+/* Function for fancy Game-Over animations */
+void DrawSolidSquare(int top_l_x, int top_l_y, int bot_r_x, int bot_r_y, bool inverted, int d) {
+  // Validate args
+  if (top_l_x < 0 || top_l_y < 0 || bot_r_x >= 8 || bot_r_y >= 8) {
+      return;
+  }
+
+  // Generate binary array
+  byte bin_arr[8];
+  // Initialize the binary array with all zeros (ones)
+  for (int i = 0; i < 8; ++i) {
+    bin_arr[i] = (inverted ? 0xff : 0x00);
+  }
+
+  // Set the bits inside the square to 1 (0)
+  for (int i = top_l_y; i <= bot_r_y; ++i) {
+    for (int j = top_l_x; j <= bot_r_x; ++j) {
+      if (inverted) {
+        bitClear(bin_arr[i], 7 - j);
+      }
+      else {
+        bitSet(bin_arr[i], 7 - j);
+      }
+    }
+  }
+  DisplayPic(bin_arr, d);
+}
+
+void DisplayPic(byte pic[8], int d) {
+  lc.clearDisplay(0);
+  for (int col = 0; col < 8; col++)
+  {
+    lc.setRow(0, col, pic[col]);
+  }
+  delay(d);
+}
+
 void seedRandom() {
     // Read from an unconnected analog pin to get a random seed
     randomSeed(analogRead(A0));
@@ -92,8 +129,12 @@ void loop()
   unsigned long currMillis = millis();
 
   if (game_over) {
-    while (digitalRead(jsP)) {
-      delay (100);
+    delay(3000);
+    for (int i = 3; i >= 0; i--) {
+      DrawSolidSquare(i, i, 7 - i, 7-i, 0, 200);
+    }
+    for (int i = 3; i >= 0; i--) {
+      DrawSolidSquare(i, i, 7 - i, 7-i, 1, 200);
     }
     resetGame();
   }
@@ -102,7 +143,6 @@ void loop()
     Point food_loc = food.GetCoords();
 
     Snake::Direction curr_dir = snake.GetDir();
-    // Snake::Direction new_dir = curr_dir;
     if (analogRead(jsX) > 767) {
       if (curr_dir != Snake::Direction::left) {
         dir = Snake::Direction::right;
